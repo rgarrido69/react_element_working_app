@@ -41,7 +41,7 @@ function RenderCampsite(props) {
                         onPress={() => props.favorite ?
                             console.log('Already set as a favorite') : props.markFavorite()}
                     />
-                   <Icon
+                    <Icon
                         name={'pencil'}
                         type='font-awesome'
                         color='#5637DD'
