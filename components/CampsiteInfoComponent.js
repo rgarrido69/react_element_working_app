@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList,
-    Modal, Button, StyleSheet, Alert, PanResponder } from 'react-native';
+    Modal, Button, StyleSheet,
+    Alert, PanResponder } from 'react-native';
 import { Card, Icon, Input, Rating } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -21,13 +22,13 @@ const mapDispatchToProps = {
 };
 
 function RenderCampsite(props) {
-
     const {campsite} = props;
 
     const view = React.createRef();
 
     const recognizeDrag = ({dx}) => (dx < -200) ? true : false;
-
+    const recognizeComment = ({dx}) => (dx > 200) ? true : false;
+    
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: () => {
@@ -54,6 +55,8 @@ function RenderCampsite(props) {
                     ],
                     { cancelable: false }
                 );
+            } else if (recognizeComment(gestureState)) {
+                props.onShowModal();
             }
             return true;
         }
@@ -61,9 +64,9 @@ function RenderCampsite(props) {
 
     if (campsite) {
         return (
-            <Animatable.View 
-                animation='fadeInDown' 
-                duration={2000} 
+            <Animatable.View
+                animation='fadeInDown'
+                duration={2000}
                 delay={1000}
                 ref={view}
                 {...panResponder.panHandlers}>
@@ -107,6 +110,8 @@ function RenderComments({comments}) {
             <View style={{margin: 10}}>
                 <Text style={{fontSize: 14}}>{item.text}</Text>
                 <Rating 
+                    type='star'
+                    fractions={0}
                     startingValue={item.rating}
                     imageSize={10}
                     readonly
@@ -147,8 +152,8 @@ class CampsiteInfo extends Component {
     }
 
     handleComment(campsiteId) {
-        this.props.postComment(campsiteId, this.state.rating, this.state.author, this.state.text);
         this.toggleModal();
+        this.props.postComment(campsiteId, this.state.rating, this.state.author, this.state.text);
     }
 
     resetForm() {
@@ -188,6 +193,8 @@ class CampsiteInfo extends Component {
                     <View style={styles.modal}>
                         <Rating
                             showRating
+                            type='star'
+                            fractions={0}
                             startingValue={this.state.rating}
                             imageSize={40}
                             onFinishRating={rating => this.setState({rating: rating})}
@@ -207,22 +214,16 @@ class CampsiteInfo extends Component {
                             onChangeText={text => {this.setState({text: text})}}
                             value={this.state.text}
                         />
-                        <View style={{margin: 10}}>
+                        <View style={{margin: 10 }}>
                             <Button
-                                onPress={() => {
-                                    this.handleComment(campsiteId);
-                                    this.resetForm();
-                                }}
+                                onPress={() => {this.handleComment(campsiteId); this.resetForm();}}
                                 color='#5637DD'
                                 title='Submit'
                             />
                         </View>
                         <View style={{margin: 10 }}>
                             <Button
-                                onPress={() => {
-                                    this.toggleModal();
-                                    this.resetForm();}
-                                }
+                                onPress={() => {this.toggleModal(); this.resetForm();}}
                                 color='#808080'
                                 title='Cancel'
                             />
